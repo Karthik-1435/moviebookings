@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>CineMagic | Premium Movie Ticket Booking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, 'Inter', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(ellipse at 30% 10%, #0c0b1a, #02010a);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+
+        /* main container - glass morphic */
+        .cinema-hub {
+            max-width: 1500px;
+            margin: 0 auto;
+            background: rgba(8, 6, 18, 0.65);
+            backdrop-filter: blur(16px);
+            border-radius: 2.5rem;
+            border: 1px solid rgba(255, 70, 150, 0.3);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 100, 200, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* header with neon glitch */
+        .neon-header {
+            background: linear-gradient(135deg, #110d22 0%, #05020f 100%);
+            padding: 1.8rem 2.5rem;
+            position: relative;
+            border-bottom: 2px solid #ff2a7a;
+        }
+
+        .neon-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(255, 42, 122, 0.05) 0px, rgba(255, 42, 122, 0.05) 1px, transparent 1px, transparent 6px);
+            pointer-events: none;
+        }
+
+        .brand-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo h1 {
+            font-size: 2.3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff2a7a, #ffb347, #ff2a7a);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -1px;
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        .logo p {
+            color: #ff94c2;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            font-weight: 300;
+        }
+
+        .marquee-tag {
+            background: rgba(255, 42, 122, 0.2);
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            backdrop-filter: blur(8px);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #ffb7da;
+            border: 1px solid #ff2a7a;
+        }
+
+        /* FILTER SECTION */
+        .filter-panel {
+            margin: 2rem 2rem 1rem 2rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 2rem;
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-end;
+            border: 1px solid rgba(255, 70, 150, 0.3);
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #ff96c5;
+            letter-spacing: 1px;
+            margin-bottom: 0.4rem;
+        }
+
+        .filter-group select, .filter-group input {
+            width: 100%;
+            background: #120c22;
+            border: 1px solid #3f2a4a;
+            padding: 0.75rem 1rem;
+            border-radius: 1.2rem;
+            color: white;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .filter-group select:focus, .filter-group input:focus {
+            border-color: #ff2a7a;
+            box-shadow: 0 0 12px rgba(255, 42, 122, 0.4);
+        }
+
+        .reset-btn {
+            background: linear-gradient(95deg, #3d1c44, #211235);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            color: #ffbfdf;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: linear-gradient(95deg, #5e2a6b, #3a1d4a);
+            color: white;
+        }
+
+        /* MOVIES GRID */
+        .movies-section {
+            margin: 1rem 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 1.2rem;
+        }
+
+        .section-header h2 {
+            color: #ffebf3;
+            font-weight: 700;
+            font-size: 1.6rem;
+            border-left: 5px solid #ff2a7a;
+            padding-left: 1rem;
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.8rem;
+        }
+
+        /* movie card unique design */
+        .movie-card {
+            background: linear-gradient(145deg, #16102a, #0c081a);
+            border-radius: 1.8rem;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: 1px solid rgba(255, 80, 150, 0.3);
+            cursor: pointer;
+            position: relative;
+            backdrop-filter: blur(5px);
+        }
+
+        .movie-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: #ff2a7a;
+            box-shadow: 0 25px 35px -12px rgba(255, 42, 122, 0.3);
+        }
+
+        .movie-card.selected-movie {
+            border: 2px solid #ff2a7a;
+            box-shadow: 0 0 0 3px rgba(255, 42, 122, 0.5), 0 10px 25px -5px black;
+            background: linear-gradient(145deg, #201734, #0f0b20);
+        }
+
+        .movie-poster {
+            height: 210px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+            padding: 1rem;
+        }
+
+        .movie-rating {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #ffcc66;
+            border: 1px solid gold;
+        }
+
+        .movie-info {
+            padding: 1.2rem;
+        }
+
+        .movie-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fff0fa;
+            margin-bottom: 0.3rem;
+        }
+
+        .movie-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #c794b0;
+            margin: 0.6rem 0;
+        }
+
+        .movie-genre {
+            background: #2f1d42;
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #ffbfdf;
+        }
+
+        .price {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #ffdb7e;
+            margin-top: 0.5rem;
+        }
+
+        /* SEATING & BOOKING PANEL */
+        .booking-panel {
+            margin: 2rem;
+            background: rgba(0, 0, 0, 0.65);
+            border-radius: 2rem;
+            padding: 1.8rem;
+            border: 1px solid #ff2a7a70;
+            backdrop-filter: blur(12px);
+        }
+
+        .panel-title {
+            color: #ffb7d6;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            letter-spacing: -0.2px;
+        }
+
+        .seating-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 1rem 0 1.5rem;
+        }
+
+        .screen {
+            background: linear-gradient(180deg, #342a4a, #0e0a1c);
+            width: 80%;
+            text-align: center;
+            padding: 0.6rem;
+            border-radius: 30px;
+            margin-bottom: 1.8rem;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #ff9ece;
+            letter-spacing: 3px;
+            border: 1px solid rgba(255, 100, 150, 0.5);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .seats-grid {
+            display: grid;
+            grid-template-columns: repeat(8, minmax(38px, 55px));
+            gap: 0.7rem;
+            justify-content: center;
+            margin: 1rem 0;
+            overflow-x: auto;
+            padding: 0.5rem;
+        }
+
+        .seat {
+            background: #2a1d3a;
+            border-radius: 12px 12px 8px 8px;
+            aspect-ratio: 1 / 0.9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #b9a4d4;
+            cursor: pointer;
+            transition: 0.1s linear;
+            border: 1px solid #4f3570;
+        }
+
+        .seat.available:hover {
+            background: #5b3c7c;
+            transform: scale(1.03);
+            color: white;
+        }
+
+        .seat.selected {
+            background: #ff2a7a;
+            color: white;
+            border-color: #ffb2d0;
+            box-shadow: 0 0 8px #ff2a7a;
+        }
+
+        .seat.booked {
+            background: #1a142b;
+            border-color: #3a2a48;
+            cursor: not-allowed;
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+
+        .legend {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin: 0.5rem 0 1.2rem;
+            font-size: 0.7rem;
+        }
+
+        .legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend .box {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+        }
+
+        .summary-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px dashed #ff6a9e;
+        }
+
+        .booking-details {
+            background: #0e0820;
+            border-radius: 1.5rem;
+            padding: 0.8rem 1.2rem;
+        }
+
+        .book-btn {
+            background: linear-gradient(95deg, #e6236b, #c9184a);
+            border: none;
+            padding: 0.9rem 2rem;
+            border-radius: 2rem;
+            font-weight: bold;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 8px 20px rgba(255, 42, 122, 0.4);
+        }
+
+        .book-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message-area {
+            margin: 0rem 2rem 1.5rem 2rem;
+            background: #0b0719;
+            padding: 0.8rem;
+            border-radius: 2rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #ffb8da;
+            border-left: 5px solid #ff2a7a;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.7rem;
+            color: #7c679b;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        @media (max-width: 700px) {
+            .seats-grid {
+                gap: 0.4rem;
+                grid-template-columns: repeat(8, minmax(34px, 45px));
+            }
+            .filter-panel {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="cinema-hub">
+    <div class="neon-header">
+        <div class="brand-flex">
+            <div class="logo">
+                <h1>🎬 CineMagic</h1>
+                <p>experience cinema • reserve your seat</p>
+            </div>
+            <div class="marquee-tag">
+                ✨ Now Showing: Blockbusters & indie gems
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-panel">
+        <div class="filter-group">
+            <label>🎭 GENRE</label>
+            <select id="genreFilter">
+                <option value="all">All Genres</option>
+                <option value="Action">🔥 Action</option>
+                <option value="Drama">🎭 Drama</option>
+                <option value="Sci-Fi">🚀 Sci-Fi</option>
+                <option value="Comedy">😆 Comedy</option>
+                <option value="Horror">🔪 Horror</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>⭐ MIN RATING</label>
+            <select id="ratingFilter">
+                <option value="0">Any Rating</option>
+                <option value="7">7+ 🌟</option>
+                <option value="8">8+ ⭐</option>
+                <option value="9">9+ 🔥</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label></label>
+            <button id="resetFiltersBtn" class="reset-btn">⟳ Reset Filters</button>
+        </div>
+    </div>
+
+    <div class="movies-section">
+        <div class="section-header">
+            <h2>📽️ now playing</h2>
+            <span style="font-size:0.7rem; color:#ff93bf;">click a movie to unlock seats</span>
+        </div>
+        <div id="moviesGridContainer" class="movies-grid">
+            <!-- dynamic movie cards -->
+        </div>
+    </div>
+
+    <!-- Booking panel (seats) -->
+    <div class="booking-panel" id="bookingPanel">
+        <div class="panel-title">
+            🎟️ <span id="selectedMovieName">No movie selected</span> — choose your seat
+        </div>
+        <div class="seating-area">
+            <div class="screen">🎥 SCREEN 🎥</div>
+            <div id="seatsContainer" class="seats-grid"></div>
+            <div class="legend">
+                <span><div class="box" style="background:#2a1d3a; border:1px solid #4f3570;"></div> Available</span>
+                <span><div class="box" style="background:#ff2a7a;"></div> Selected</span>
+                <span><div class="box" style="background:#1a142b; border:1px solid #3a2a48;"></div> Booked</span>
+            </div>
+        </div>
+        <div class="summary-bar">
+            <div class="booking-details">
+                <span>🎫 Seats: <strong id="selectedSeatsCount">0</strong></span>&nbsp;&nbsp;|&nbsp;
+                <span>💰 Total: $<strong id="totalPrice">0</strong></span>
+            </div>
+            <button id="confirmBookingBtn" class="book-btn">✨ CONFIRM BOOKING</button>
+        </div>
+    </div>
+    <div class="message-area" id="globalMsg">
+        🎬 Welcome to CineMagic! Pick your favorite movie and reserve the best seats.
+    </div>
+    <footer>
+        © 2026 CineMagic | immersive cinematic experience | Dolby Atmos ready
+    </footer>
+</div>
+
+<script>
+    // ---------- MOVIE DATABASE (unique) ----------
+    const moviesData = [
+        { id: 1, title: "Neon Samurai", genre: "Action", rating: 8.7, price: 14, posterColor: "linear-gradient(135deg, #a02070, #2a0845)", year: "2025" },
+        { id: 2, title: "Echoes of Tomorrow", genre: "Sci-Fi", rating: 9.2, price: 16, posterColor: "linear-gradient(135deg, #0066cc, #002244)", year: "2026" },
+        { id: 3, title: "The Last Laugh", genre: "Comedy", rating: 7.9, price: 12, posterColor: "linear-gradient(135deg, #f9a602, #b45f06)", year: "2025" },
+        { id: 4, title: "Whispering Shadows", genre: "Horror", rating: 8.3, price: 13, posterColor: "linear-gradient(135deg, #2c2c2c, #000000)", year: "2025" },
+        { id: 5, title: "Fractured Mind", genre: "Drama", rating: 8.9, price: 15, posterColor: "linear-gradient(135deg, #4a2c6d, #1f103a)", year: "2026" },
+        { id: 6, title: "Cosmic Drift", genre: "Sci-Fi", rating: 8.5, price: 15, posterColor: "linear-gradient(135deg, #0f4c75, #121a2a)", year: "2025" },
+        { id: 7, title: "Rumble in Neon City", genre: "Action", rating: 8.0, price: 14, posterColor: "linear-gradient(135deg, #c44536, #5e1914)", year: "2025" },
+        { id: 8, title: "Midnight Heist", genre: "Action", rating: 8.2, price: 14, posterColor: "linear-gradient(135deg, #2b5876, #0f2027)", year: "2026" }
+    ];
+
+    // ---------- MOCK SEAT MAP (8x6 = 48 seats, some pre-booked) ----------
+    function generateInitialSeatStatus(movieId) {
+        // Each movie gets own seat map stored in localStorage simulation, but for uniqueness we maintain dynamic memory.
+        // We'll create an object with movieId keys. For each movie we generate random booked seats.
+        if (!window.seatMapCache) window.seatMapCache = {};
+        if (window.seatMapCache[movieId]) return window.seatMapCache[movieId];
+        const totalSeats = 48; // rows 6, cols 8
+        const bookedIndices = [];
+        // generate 8-12 random prebooked seats per movie (varied)
+        const bookedCount = Math.floor(Math.random() * 10) + 6;
+        for (let i = 0; i < bookedCount; i++) {
+            let idx;
+            do { idx = Math.floor(Math.random() * totalSeats); } while (bookedIndices.includes(idx));
+            bookedIndices.push(idx);
+        }
+        window.seatMapCache[movieId] = bookedIndices;
+        return bookedIndices;
+    }
+
+    // current state
+    let currentMoviesList = [...moviesData];
+    let selectedMovie = null;           // movie object
+    let selectedSeatsIndices = [];       // array of seat numbers (0-based)
+    let currentBookedSeats = [];          // for selected movie
+
+    // DOM elements
+    const moviesGridDiv = document.getElementById('moviesGridContainer');
+    const genreFilter = document.getElementById('genreFilter');
+    const ratingFilter = document.getElementById('ratingFilter');
+    const resetBtn = document.getElementById('resetFiltersBtn');
+    const seatsContainer = document.getElementById('seatsContainer');
+    const selectedMovieNameSpan = document.getElementById('selectedMovieName');
+    const selectedSeatsCountSpan = document.getElementById('selectedSeatsCount');
+    const totalPriceSpan = document.getElementById('totalPrice');
+    const confirmBookingBtn = document.getElementById('confirmBookingBtn');
+    const globalMsg = document.getElementById('globalMsg');
+
+    function setMessage(msg, isError = false) {
+        globalMsg.innerHTML = isError ? `⚠️ ${msg}` : `🎬 ${msg}`;
+        globalMsg.style.borderLeftColor = isError ? '#ff7777' : '#ff2a7a';
+        setTimeout(() => {
+            if(globalMsg.innerHTML === `🎬 ${msg}` || globalMsg.innerHTML === `⚠️ ${msg}`) {
+                // keep style stable
+            }
+        }, 3000);
+    }
+
+    // render movies based on filters
+    function filterMovies() {
+        const genre = genreFilter.value;
+        const minRating = parseInt(ratingFilter.value);
+        let filtered = moviesData.filter(m => {
+            if (genre !== 'all' && m.genre !== genre) return false;
+            if (minRating > 0 && m.rating < minRating) return false;
+            return true;
+        });
+        currentMoviesList = filtered;
+        renderMovieCards();
+        // If selected movie is not in filtered list, clear selection
+        if (selectedMovie && !filtered.some(m => m.id === selectedMovie.id)) {
+            clearMovieSelection();
+        }
+    }
+
+    function renderMovieCards() {
+        if (currentMoviesList.length === 0) {
+            moviesGridDiv.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem; color:#c995b5;">✨ No movies match filters. Try different genre or rating ✨</div>`;
+            return;
+        }
+        moviesGridDiv.innerHTML = currentMoviesList.map(movie => `
+            <div class="movie-card ${selectedMovie?.id === movie.id ? 'selected-movie' : ''}" data-movie-id="${movie.id}">
+                <div class="movie-poster" style="background: ${movie.posterColor};">
+                    <div class="movie-rating">⭐ ${movie.rating} / 10</div>
+                </div>
+                <div class="movie-info">
+                    <div class="movie-title">${movie.title}</div>
+                    <div class="movie-meta">
+                        <span>🎬 ${movie.genre}</span>
+                        <span>📅 ${movie.year}</span>
+                    </div>
+                    <div class="movie-genre">🎧 ${movie.genre}</div>
+                    <div class="price">$${movie.price} / seat</div>
+                </div>
+            </div>
+        `).join('');
+
+        // attach click listeners
+        document.querySelectorAll('.movie-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const movieId = parseInt(card.getAttribute('data-movie-id'));
+                const movie = currentMoviesList.find(m => m.id === movieId);
+                if (movie) selectMovie(movie);
+            });
+        });
+    }
+
+    function selectMovie(movie) {
+        if (selectedMovie && selectedMovie.id === movie.id) return;
+        selectedMovie = movie;
+        // reset seat selection for new movie
+        selectedSeatsIndices = [];
+        currentBookedSeats = generateInitialSeatStatus(movie.id);
+        updateSeatMapUI();
+        updateSummaryUI();
+        selectedMovieNameSpan.innerText = movie.title;
+        setMessage(`🎥 "${movie.title}" selected. Pick your seats!`, false);
+        renderMovieCards();  // refresh selected style
+    }
+
+    function clearMovieSelection() {
+        selectedMovie = null;
+        selectedSeatsIndices = [];
+        currentBookedSeats = [];
+        selectedMovieNameSpan.innerText = "No movie selected";
+        updateSeatMapUI(true);
+        updateSummaryUI();
+        renderMovieCards();
+    }
+
+    function updateSeatMapUI(reset = false) {
+        if (!selectedMovie || reset) {
+            seatsContainer.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#ffbfdf;">Select a movie to see seat plan</div>`;
+            return;
+        }
+        const totalSeats = 48;
+        const rows = 6;
+        const cols = 8;
+        let html = '';
+        for (let i = 0; i < totalSeats; i++) {
+            const isBooked = currentBookedSeats.includes(i);
+            const isSelected = selectedSeatsIndices.includes(i);
+            let seatClass = 'seat';
+            if (isBooked) seatClass += ' booked';
+            else if (isSelected) seatClass += ' selected';
+            else seatClass += ' available';
+            const seatLabel = String.fromCharCode(65 + Math.floor(i / cols)) + ((i % cols) + 1);
+            html += `<div class="${seatClass}" data-seat-index="${i}">${seatLabel}</div>`;
+        }
+        seatsContainer.innerHTML = html;
+        // add event listeners to available seats
+        document.querySelectorAll('.seat.available, .seat.selected').forEach(seatDiv => {
+            seatDiv.addEventListener('click', (e) => {
+                if (!selectedMovie) {
+                    setMessage("Please select a movie first!", true);
+                    return;
+                }
+                const idx = parseInt(seatDiv.getAttribute('data-seat-index'));
+                if (currentBookedSeats.includes(idx)) return;
+                if (selectedSeatsIndices.includes(idx)) {
+                    // remove seat
+                    selectedSeatsIndices = selectedSeatsIndices.filter(i => i !== idx);
+                    setMessage(`Removed seat ${seatDiv.innerText}`, false);
+                } else {
+                    if (selectedSeatsIndices.length >= 8) {
+                        setMessage("Max 8 seats per booking", true);
+                        return;
+                    }
+                    selectedSeatsIndices.push(idx);
+                    setMessage(`Added seat ${seatDiv.innerText}`, false);
+                }
+                updateSeatMapUI(); // re-render seats
+                updateSummaryUI();
+            });
+        });
+    }
+
+    function updateSummaryUI() {
+        if (!selectedMovie) {
+            selectedSeatsCountSpan.innerText = "0";
+            totalPriceSpan.innerText = "0";
+            return;
+        }
+        const count = selectedSeatsIndices.length;
+        const total = count * selectedMovie.price;
+        selectedSeatsCountSpan.innerText = count;
+        totalPriceSpan.innerText = total;
+    }
+
+    function confirmReservation() {
+        if (!selectedMovie) {
+            setMessage("Please select a movie before booking.", true);
+            return;
+        }
+        if (selectedSeatsIndices.length === 0) {
+            setMessage("No seats selected! Choose your favorite seats.", true);
+            return;
+        }
+        // generate booking reference
+        const ref = "CM" + Math.floor(Math.random() * 10000) + "X" + selectedMovie.id;
+        const seatLabels = selectedSeatsIndices.map(idx => {
+            const cols = 8;
+            return String.fromCharCode(65 + Math.floor(idx / cols)) + ((idx % cols) + 1);
+        }).join(", ");
+        const totalAmount = selectedSeatsIndices.length * selectedMovie.price;
+        // update booked seats for this movie (persist in cache)
+        const newBooked = [...currentBookedSeats, ...selectedSeatsIndices];
+        window.seatMapCache[selectedMovie.id] = newBooked;
+        currentBookedSeats = newBooked;
+        setMessage(`🎟️ BOOKING CONFIRMED! Movie: ${selectedMovie.title} | Seats: ${seatLabels} | Total: $${totalAmount} | Ref: ${ref}. Enjoy the show! ✨`, false);
+        // reset selected seats but keep movie selected
+        selectedSeatsIndices = [];
+        updateSeatMapUI();
+        updateSummaryUI();
+        // re-render seat availability
+    }
+
+    // event listeners
+    genreFilter.addEventListener('change', () => { filterMovies(); clearMovieSelection(); });
+    ratingFilter.addEventListener('change', () => { filterMovies(); clearMovieSelection(); });
+    resetBtn.addEventListener('click', () => {
+        genreFilter.value = 'all';
+        ratingFilter.value = '0';
+        filterMovies();
+        clearMovieSelection();
+        setMessage("Filters reset! Browse all movies.", false);
+    });
+    confirmBookingBtn.addEventListener('click', confirmReservation);
+
+    // initial load
+    filterMovies();
+    clearMovieSelection();
+</script>
+</body>
+</html>
